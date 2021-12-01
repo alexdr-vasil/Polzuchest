@@ -137,6 +137,7 @@ plt.plot(t_graph, e_graph, '.', label="Экспериментальные точ
 plt.plot(x1_list, polinomic(x1_list, *Parameters_pol), label="Теоретическая кривая")
 plt.plot(x2_list, polinomic_2(x2_list, *Parameters_pol2), label="Теоретическая кривая")
 plt.plot(x3_list, relaxation(x3_list, *Parameters_rel), label="Теор. кривая релаксации")
+plt.legend(loc='lower right')
 axes = plt.gca()
 axes.set_ylim([0, 7])
 plt.title("Сравнение теоретической кривой №2\n (полином)")
