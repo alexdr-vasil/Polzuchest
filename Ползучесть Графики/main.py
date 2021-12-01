@@ -12,10 +12,10 @@ def polinomic(t, a, b, c):
     return a + b * np.power(t, c)
 
 
-def exponential_2(t, A1):
+def exponential_2(t, A1, E1):
     tau = 461
     global Parameters_exp, alpha
-    return exponential(t, *Parameters_exp) + A1 * (1 - np.exp(alpha * (t - tau)))
+    return exponential(t, *Parameters_exp) + E1 + A1 * (1 - np.exp(alpha * (t - tau)))
 
 
 def polinomic_2(t, p, q, n):
@@ -30,7 +30,7 @@ def relaxation(t, d, e, f):
     return polinomic_2(t, *Parameters_pol2) - polinomic((t - tau), d, e, f)
 
 
-def relaxation_e(t, A2):
+def relaxation_e(t, A2, E2):
     tau = 783
     global Parameters_exp2
     return exponential_2(t, *Parameters_exp2) - A2 * (1 - np.exp(alpha * (t - tau)))
@@ -98,7 +98,7 @@ a, b, c = [-3.72277478, 7.39744444, 0.02627248]
 t_1 = 461
 
 # Участок для двух сигма
-Parameters_exp2, Delta_exp2 = curve_fit(exponential_2, T2, E2, bounds=([0.0], [5]))
+Parameters_exp2, Delta_exp2 = curve_fit(exponential_2, T2, E2, bounds=([0.0, 0.3], [2, 1.0]))
 Parameters_pol2, Delta_pol2 = curve_fit(polinomic_2, T2, E2)
 print()
 print("Параметры экспоненциальной ф-ции на 2 участке: " + str(Parameters_exp2))
