@@ -24,16 +24,16 @@ def polinomic_2(t, p, q, n):
     return polinomic(t, *Parameters_pol) + polinomic((t - tau), p, q, n)
 
 
-def relaxation(t, d, e, f):
+def relaxation(t):
     tau = 783
     global Parameters_pol2
-    return polinomic_2(t, *Parameters_pol2) - polinomic((t - tau), d, e, f)
+    return polinomic_2(t, *Parameters_pol2) - 1.2*polinomic((t - tau), *Parameters_pol)
 
 
-def relaxation_e(t, A2, E2):
+def relaxation_e(t):
     tau = 783
-    global Parameters_exp2
-    return exponential_2(t, *Parameters_exp2) - A2 * (1 - np.exp(alpha * (t - tau)))
+    global Parameters_exp2, A
+    return exponential_2(t, *Parameters_exp2) - 1.12* A * (1 - np.exp(alpha * (t - tau))) - 1.2*E0
 
 
 # Ввод данных из файлов
@@ -104,43 +104,97 @@ print()
 print("Параметры экспоненциальной ф-ции на 2 участке: " + str(Parameters_exp2))
 print("Параметры полиноминальной  ф-ции на 2 участке: " + str(Parameters_pol2))
 
-# Участок релаксации
-Parameters_rel, Delta_rel = curve_fit(relaxation, T3, E3)
-Parameters_rel_exp, Delta_rel_exp = curve_fit(relaxation_e, T3, E3)
-print()
-print("Параметры экспоненциальной ф-ции на участке релаксации: " + str(Parameters_rel_exp))
-print("Параметры полиноминальной  ф-ции на участке релаксации: " + str(Parameters_rel))
 
 x1_list = np.linspace(0, 461, 462)
 x2_list = np.linspace(461, 782, 782 - 461 + 1)
-x3_list = np.linspace(783, 814, 814 - 783 + 1)
+x3_list = np.linspace(783, 850, 850 - 783 + 1)
 
 
 # График экспоненциальных кривых
-fig = plt.figure(figsize=(12, 8))
+fig = plt.figure(figsize=(8, 6))
 plt.plot(t_graph, e_graph, '.', label="Экспериментальные точки")
 plt.plot(x1_list, exponential(x1_list, *Parameters_exp), label="Теоретическая кривая на 1 участке")
+plt.plot([0, 0], [0, exponential(0, *Parameters_exp)], linestyle='--', dashes=(5, 5), color = 'orange')
 plt.plot(x2_list, exponential_2(x2_list, *Parameters_exp2), label="Теоретическая кривая на 2 участке")
-plt.plot(x3_list, relaxation_e(x3_list, *Parameters_rel_exp), label="Теоретическая кривая релаксации")
+plt.plot([461, 461], [5, exponential_2(461, *Parameters_exp2)], linestyle='--', dashes=(5, 1), color = 'green')
+plt.plot(x3_list, relaxation_e(x3_list), label="Теоретическая кривая релаксации")
+plt.plot([783, 783], [6.25, relaxation_e(783)] , linestyle='--', dashes=(5, 5), color = 'red' )
 axes = plt.gca()
 axes.set_ylim([0, 7])
+plt.xlabel("t, с")
+plt.ylabel("E, мм")
 plt.title("Сравнение теоретической кривой №1 с экспериментом\n (экспонента)")
 plt.grid()
-plt.legend(loc='lower right')
+plt.legend(loc='lower center')
 plt.savefig("exp.png")
 plt.show()
 
 
 # График полиноминальных кривых
-fig1 = plt.figure(figsize=(12, 8))
+fig1 = plt.figure(figsize=(8, 6))
 plt.plot(t_graph, e_graph, '.', label="Экспериментальные точки", )
-plt.plot(x1_list, polinomic(x1_list, *Parameters_pol), label="Теоретическая кривая на 1 участке")
-plt.plot(x2_list, polinomic_2(x2_list, *Parameters_pol2), label="Теоретическая кривая на 2 участке")
-plt.plot(x3_list, relaxation(x3_list, *Parameters_rel), label="Теор. кривая релаксации")
-plt.legend(loc='lower right')
+plt.plot(x1_list, polinomic(x1_list, *Parameters_pol), label="Теор. кривая на 1 участке")
+plt.plot(x2_list, polinomic_2(x2_list, *Parameters_pol2), label="Теор. кривая на 2 участке")
+plt.plot([461, 461], [5, polinomic_2(461, *Parameters_pol2)], color = 'green')
+y_rel = relaxation(x3_list)
+y_rel[0] = 6.25
+plt.plot(x3_list, y_rel, label="Теор. кривая релаксации")
+plt.legend(loc='lower center')
 axes = plt.gca()
 axes.set_ylim([0, 7])
+plt.xlabel("t, с")
+plt.ylabel("E, мм")
 plt.title("Сравнение теоретической кривой №2 с экспериментом \n (полином)")
 plt.grid()
 plt.savefig("pol.png")
+plt.show()
+
+
+
+# Сравнение на участке 1
+fig3 = plt.figure(figsize=(8, 6))
+plt.plot(t_graph[0:43], e_graph[0:43], '.', label="Экспериментальные точки")
+plt.plot(x1_list, exponential(x1_list, *Parameters_exp), label="Экспонента")
+plt.plot(x1_list, polinomic(x1_list, *Parameters_pol), label="Полином")
+axes = plt.gca()
+axes.set_ylim([4, 5])
+plt.xlabel("t, с")
+plt.ylabel("E, мм")
+plt.title("Сравнение двух методов аппроксимации \n на участке 1")
+plt.grid()
+plt.legend(loc='lower center')
+plt.savefig("exp1.png")
+plt.show()
+
+
+
+# Сравнение на участке 2
+fig4 = plt.figure(figsize=(8, 6))
+plt.plot(t_graph[45:82], e_graph[45:82], '.', label="Экспериментальные точки")
+plt.plot(x2_list, exponential_2(x2_list, *Parameters_exp2), label="Экспонента")
+plt.plot(x2_list, polinomic_2(x2_list, *Parameters_pol2), label="Полином")
+axes = plt.gca()
+axes.set_ylim([5.3, 6.3])
+plt.xlabel("t, с")
+plt.ylabel("E, мм")
+plt.title("Сравнение двух методов аппроксимации \n на участке 2")
+plt.grid()
+plt.legend(loc='lower center')
+plt.savefig("exp2.png")
+plt.show()
+
+
+# График экспоненциальных кривых
+fig5 = plt.figure(figsize=(4, 10))
+plt.plot(t_graph[83::], e_graph[83::], '.', label="Экспериментальные точки")
+plt.plot(x3_list, relaxation_e(x3_list), label="Экспонента")
+plt.plot(x3_list, y_rel, label="Полином")
+axes = plt.gca()
+axes.set_ylim([0, 7])
+plt.xlabel("t, с")
+plt.ylabel("E, мм")
+plt.title("Сравнение \n на участке релаксации")
+plt.grid()
+plt.legend(loc='upper right')
+plt.savefig("exp3.png")
 plt.show()
